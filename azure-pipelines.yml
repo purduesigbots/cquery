@@ -1,0 +1,43 @@
+jobs:
+- job: BuildCquery
+  strategy:
+    matrix:
+      x86:
+        ChocoPlatform: --forcex86
+        Tag: 86
+        MSBuildFlag:
+        ProgramFiles: " (x86)"
+      x86-64:
+        ChocoPlatform:
+        Tag: 64
+        MSBuildFlag: " Win64"
+        ProgramFiles:
+  displayName: Build cquery
+  pool:
+    vmImage: vs2015-win2012r2
+  steps:
+  - powershell: |
+      iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      choco install llvm --version 6.0.1 -y $(ChocoPlatform)
+    displayName: Install LLVM
+  - powershell: |
+      Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+      Install-Module -Name Invoke-MsBuild -Force -Scope CurrentUser
+    displayName: Install Invoke-MsBuild
+  - checkout: self
+  - powershell: |
+      cmake -G "Visual Studio 14 2015$(MSBuildFlag)" -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_PREFIX_PATH="$($env:SystemDrive)\Program Files$(ProgramFiles)\LLVM" .
+      Invoke-MsBuild -Path ./cquery.sln -MsBuildParameters "/p:Configuration=Release" -ShowBuildOutputInCurrentWindow -BypassVisualStudioDeveloperCommandPrompt
+
+      Push-Location Release
+      & 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\dumpbin.exe' /dependents .\cquery.exe | Select-String -Pattern "\b.+\.dll\b" | ForEach-Object{Join-Path -Path "$($env:SystemDrive)\Program Files$(ProgramFiles)\LLVM\bin" -ChildPath $_.Matches.Value } | Where-Object { Test-Path $_ } | Copy-Item -Destination .
+    displayName: Build cquery
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: ./cquery/Release
+      includeRootFolder: false
+      archiveFile: ./out/cquery-$(Tag).zip
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'cquery-$(Tag)'
+      targetPath: 'out'
