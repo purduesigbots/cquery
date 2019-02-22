@@ -34,7 +34,7 @@ jobs:
     displayName: Build cquery
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: ./cquery/Release
+      rootFolderOrFile: ./Release
       includeRootFolder: false
       archiveFile: ./out/cquery-$(Tag).zip
   - task: PublishPipelineArtifact@0
