@@ -14,7 +14,7 @@ jobs:
         ProgramFiles:
   displayName: Build cquery
   pool:
-    vmImage: vs2015-win2012r2
+    vmImage: vs2017-win2016
   steps:
   - powershell: |
       iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
