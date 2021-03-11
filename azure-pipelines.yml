@@ -26,7 +26,7 @@ jobs:
     displayName: Install Invoke-MsBuild
   - checkout: self
   - powershell: |
-      cmake -G "Visual Studio 14 2015$(MSBuildFlag)" -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_PREFIX_PATH="$($env:SystemDrive)\Program Files$(ProgramFiles)\LLVM" .
+      cmake -G "Visual Studio 15 2017$(MSBuildFlag)" -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_PREFIX_PATH="$($env:SystemDrive)\Program Files$(ProgramFiles)\LLVM" .
       Invoke-MsBuild -Path ./cquery.sln -MsBuildParameters "/p:Configuration=Release" -ShowBuildOutputInCurrentWindow -BypassVisualStudioDeveloperCommandPrompt
 
       Push-Location Release
