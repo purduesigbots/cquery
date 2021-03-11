@@ -2,11 +2,6 @@ jobs:
 - job: BuildCquery
   strategy:
     matrix:
-      x86:
-        ChocoPlatform: --forcex86
-        Tag: 86
-        MSBuildFlag:
-        ProgramFiles: " (x86)"
       x86-64:
         ChocoPlatform:
         Tag: 64
